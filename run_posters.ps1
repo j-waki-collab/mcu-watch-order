@@ -6,6 +6,9 @@ Write-Host "（入力した文字は画面に表示されません）"
 $secure = Read-Host "トークン" -AsSecureString
 $env:TMDB_TOKEN = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure))
 python fetch_posters.py
+Write-Host ""
+Write-Host "続けて、相関図の顔写真も取得します..."
+python fetch_people.py
 Remove-Item Env:TMDB_TOKEN
 Write-Host ""
 Read-Host "終わりました。Enterで閉じます"

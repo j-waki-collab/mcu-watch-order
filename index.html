@@ -33,6 +33,7 @@ header p{color:var(--muted);max-width:62ch;margin:12px 0 0}
 .views{display:flex;gap:0;margin-top:24px;border:2px solid var(--ink);border-radius:6px;overflow:hidden;width:max-content;max-width:100%}
 .view{font:inherit;font-weight:700;font-size:15px;padding:10px 20px;border:0;background:transparent;color:var(--ink);cursor:pointer}
 .view[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.tochart{color:var(--accent);font-weight:700;font-size:14px;text-decoration:none;border-bottom:2px solid var(--accent)}
 .guide{margin-top:14px;color:var(--muted);font-size:13px;max-width:70ch}
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px;margin-top:12px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .chip{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:6px 12px;border-radius:999px;cursor:pointer}
@@ -93,6 +94,7 @@ footer{color:var(--muted);font-size:12px;margin-top:32px;max-width:70ch}
   <p>映画・Disney+ドラマ・アニメ・旧Marvel TVまで全64作品。時間がない人は「まずはコレ」の映画だけ、じっくり追うなら「おすすめ順」、2周目は「時系列順」がおすすめです。</p>
 </header>
 
+<p style="margin:14px 0 0"><a class="tochart" href="chart.html">キャラ相関図を見る →</a></p>
 <div class="views" role="group" aria-label="並び順">
   <button class="view" id="v-must" data-v="must" aria-pressed="true">まずはコレ</button>
   <button class="view" id="v-rec" data-v="rec" aria-pressed="false">おすすめ順</button>
