@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MCU 時系列ナビ</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#17181c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MCUナビ">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap">
+<style>
+:root{
+  --bg:#f3f2f0; --ink:#17181c; --muted:#62646d; --line:#d9d7d3; --chip:#e6e4e0;
+  --accent:#c8102e; --done:#2f7d4f;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121317; --ink:#ecebe8; --muted:#9a9ca5; --line:#2a2c33; --chip:#24262d; --accent:#ff4a5f; --done:#3f9d68;}}
+:root[data-theme="dark"]{--bg:#121317; --ink:#ecebe8; --muted:#9a9ca5; --line:#2a2c33; --chip:#24262d; --accent:#ff4a5f; --done:#3f9d68;}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;font-size:15px;line-height:1.6;padding:32px 16px 64px;margin:0}
+.wrap{max-width:1080px;margin:0 auto}
+header h1{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:900;font-size:clamp(40px,8vw,84px);line-height:.95;margin:0;text-transform:uppercase}
+header h1 span{color:var(--accent)}
+header p{color:var(--muted);max-width:62ch;margin:12px 0 0}
+.views{display:flex;gap:0;margin-top:24px;border:2px solid var(--ink);border-radius:6px;overflow:hidden;width:max-content;max-width:100%}
+.view{font:inherit;font-weight:700;font-size:15px;padding:10px 20px;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.view[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.guide{margin-top:14px;color:var(--muted);font-size:13px;max-width:70ch}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px;margin-top:12px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:6px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.sep{width:1px;height:20px;background:var(--line);margin-inline:4px}
+.chip:focus-visible,.view:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.progress{margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.era{display:grid;grid-template-columns:150px 1fr;gap:24px;padding-block:28px;border-bottom:1px solid var(--line)}
+.era h2{font-family:"Big Shoulders Display","Zen Kaku Gothic New",Impact,sans-serif;font-size:32px;line-height:1;margin:0;position:sticky;top:80px;align-self:start}
+.era h2 small{display:block;font-family:"Zen Kaku Gothic New",sans-serif;font-size:12px;color:var(--muted);font-weight:400;margin-top:6px;line-height:1.4}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:24px 16px}
+.item{display:flex;flex-direction:column;gap:8px}
+.cover{position:relative;aspect-ratio:2/3;max-width:100%;border-radius:4px;overflow:hidden;color:#fff;padding:10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 8px 20px -12px rgba(0,0,0,.6)}
+.cover::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 70% at 70% 20%,rgba(255,255,255,.28),transparent 60%),linear-gradient(180deg,transparent 40%,rgba(0,0,0,.55));pointer-events:none}
+.cover .no{position:relative;font-family:"Big Shoulders Display",sans-serif;font-weight:900;font-size:40px;line-height:.8;opacity:.9}
+.cover .en{position:relative;font-family:"Big Shoulders Display",sans-serif;font-weight:900;text-transform:uppercase;font-size:21px;line-height:.95;text-wrap:balance;overflow-wrap:anywhere}
+.cover .kind{position:absolute;top:10px;right:10px;font-size:10px;letter-spacing:.08em;background:rgba(0,0,0,.45);padding:2px 6px;border-radius:2px}
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cover.has-img::before{background:linear-gradient(180deg,rgba(0,0,0,.35),transparent 30%)}
+.cover.has-img .en{visibility:hidden}
+.item.seen .cover{filter:grayscale(.85) brightness(.8)}
+.item.seen .badge{display:block}
+.badge{display:none;position:absolute;left:0;right:0;top:44%;text-align:center;font-weight:700;font-size:13px;background:var(--done);padding:4px 0;z-index:1}
+.pri{align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.06em;padding:1px 8px;border-radius:2px;border:1px solid var(--line);color:var(--muted)}
+.pri.must{background:var(--accent);border-color:var(--accent);color:#fff}
+.pri.rec{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.jp{font-weight:700;font-size:14px;line-height:1.4;text-wrap:balance}
+.why{font-size:12px;line-height:1.5}
+.filters{display:contents}
+.tip{font-size:11px;line-height:1.5;color:var(--muted);border-left:2px solid var(--accent);padding-left:8px}
+.meta{font-size:12px;color:var(--muted);line-height:1.5}
+.meta b{color:var(--accent);font-weight:700}
+label.check{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center;cursor:pointer}
+.soon{color:var(--accent);font-weight:700}
+.next{margin-top:24px;display:grid;grid-template-columns:96px 1fr;gap:16px;align-items:center;padding:14px;border:2px solid var(--accent);border-radius:8px}
+.next .cover{padding:6px}
+.next .cover .no{font-size:26px}
+.next .cover .en{font-size:13px}
+.next .label{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.06em}
+.next .title{font-weight:700;font-size:18px;line-height:1.35;text-wrap:balance}
+.next .sub{font-size:13px;color:var(--muted)}
+.next button{margin-top:8px;font:inherit;font-weight:700;font-size:14px;padding:8px 16px;border-radius:6px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+.empty{color:var(--muted);padding-block:40px}
+.tmdb{display:inline-block;margin-bottom:6px}
+.tmdb img{display:block;height:12px;width:auto}
+footer{color:var(--muted);font-size:12px;margin-top:32px;max-width:70ch}
+@media (max-width:640px){.era{grid-template-columns:1fr;gap:12px}.era h2{position:static}.grid{grid-template-columns:repeat(2,1fr)}.progress{margin-left:0;width:100%}.sep{display:none}.view{padding:10px 14px}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <h1>Marvel Cinematic Universe<br><span>Watch</span> Order</h1>
+  <p>映画・Disney+ドラマ・アニメ・旧Marvel TVまで全64作品。時間がない人は「まずはコレ」の映画だけ、じっくり追うなら「おすすめ順」、2周目は「時系列順」がおすすめです。</p>
+</header>
+
+<div class="views" role="group" aria-label="並び順">
+  <button class="view" id="v-must" data-v="must" aria-pressed="true">まずはコレ</button>
+  <button class="view" id="v-rec" data-v="rec" aria-pressed="false">おすすめ順</button>
+  <button class="view" id="v-chrono" data-v="chrono" aria-pressed="false">時系列順</button>
+</div>
+<p class="guide" id="guide"></p>
+<section class="next" id="next" hidden></section>
+
+<div class="bar" role="toolbar" aria-label="絞り込み">
+  <span class="filters" id="filters">
+  <button class="chip" data-f="all" aria-pressed="true">すべて</button>
+  <button class="chip" data-f="film" aria-pressed="false">映画</button>
+  <button class="chip" data-f="series" aria-pressed="false">ドラマ</button>
+  <button class="chip" data-f="anim" aria-pressed="false">アニメ・特別編</button>
+  <button class="chip" data-f="tv" aria-pressed="false">旧Marvel TV</button>
+  <span class="sep" id="sep"></span>
+  <button class="chip" id="mustonly" aria-pressed="false">必須だけ見る</button>
+  </span>
+  <span class="progress" id="progress"></span>
+</div>
+
+<main id="list"></main>
+
+<footer>
+  <a class="tmdb" href="https://www.themoviedb.org" target="_blank" rel="noopener"><img src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg" alt="TMDB" width="92" height="12" onerror="this.parentNode.textContent='TMDB'"></a><br>
+  ポスター画像とデータの一部はTMDBから取得しています。This product uses the TMDB API but is not endorsed or certified by TMDB. 画像を取得していない作品は、イメージカラーで作った仮デザインで表示します。時系列順はDisney+の「時系列順」、おすすめ順は公開順をベースに、つながりが分かりやすいよう調整しています。2026年以降の作品は公開日や位置づけが変わる可能性があります。
+</footer>
+</div>
+
+<script src="posters.js"></script>
+<script>
+const KIND={film:"MOVIE",series:"SERIES",anim:"ANIMATION",tv:"MARVEL TV"};
+// [章, 邦題, 原題, 種類, 公開年, 作中の時代, 色1, 色2, メモ]
+const D=[
+["はじまり","アイズ・オブ・ワカンダ","Eyes of Wakanda","anim","2025","紀元前〜","#3b1f5c","#0f0a1a","話ごとに時代が異なる"],
+["1940s","キャプテン・アメリカ／ザ・ファースト・アベンジャー","Captain America: The First Avenger","film","2011","1943〜1945年","#1c3f8f","#8b1a1a",""],
+["1940s","エージェント・カーター S1–2","Agent Carter","tv","2015","1946〜1947年","#6b1d2a","#1a1a2e",""],
+["1990s","キャプテン・マーベル","Captain Marvel","film","2019","1995年","#1d3a8a","#c9302c",""],
+["2008–2011","アイアンマン","Iron Man","film","2008","2008年","#a3120f","#d4a017",""],
+["2008–2011","アイアンマン2","Iron Man 2","film","2010","2010年","#8c1010","#555a60",""],
+["2008–2011","インクレディブル・ハルク","The Incredible Hulk","film","2008","2010年","#2e6b1f","#1a2a12",""],
+["2008–2011","マイティ・ソー","Thor","film","2011","2010年","#6f7c8f","#b8860b",""],
+["2012–2013","アベンジャーズ","The Avengers","film","2012","2012年","#243b6b","#7a1f1f",""],
+["2012–2013","アイアンマン3","Iron Man 3","film","2013","2012年末","#9e1b1b","#3a2a1a",""],
+["2012–2013","マイティ・ソー／ダーク・ワールド","Thor: The Dark World","film","2013","2013年","#2b2f3a","#8a1c1c",""],
+["2012–2013","エージェント・オブ・シールド S1–7","Agents of S.H.I.E.L.D.","tv","2013","2013〜2019年","#1e2f4a","#5a6675","映画と並行して進む"],
+["2014","キャプテン・アメリカ／ウィンター・ソルジャー","Captain America: The Winter Soldier","film","2014","2014年","#1f3558","#6b6f78",""],
+["2014","ガーディアンズ・オブ・ギャラクシー","Guardians of the Galaxy","film","2014","2014年","#c2410c","#3b1a5c",""],
+["2014","ガーディアンズ・オブ・ギャラクシー：リミックス","Guardians of the Galaxy Vol. 2","film","2017","2014年","#d9467a","#2a1f6b",""],
+["2014","アイ・アム・グルート","I Am Groot","anim","2022","2014年頃","#4d7c2a","#6b4a2a","短編シリーズ"],
+["2015–2016","デアデビル／ジェシカ・ジョーンズ","Daredevil / Jessica Jones","tv","2015","2015年〜","#7a0f14","#1a1a1f","Netflixシリーズ"],
+["2015–2016","アベンジャーズ／エイジ・オブ・ウルトロン","Avengers: Age of Ultron","film","2015","2015年","#3a4252","#7a1f1f",""],
+["2015–2016","アントマン","Ant-Man","film","2015","2015年","#8c1c1c","#1c1c22",""],
+["2015–2016","シビル・ウォー／キャプテン・アメリカ","Captain America: Civil War","film","2016","2016年","#1f3a6b","#8a1414",""],
+["2015–2016","ブラック・ウィドウ","Black Widow","film","2021","2016年","#111318","#b01c2e",""],
+["2015–2016","ブラックパンサー","Black Panther","film","2018","2016年","#2a1747","#0d0d12",""],
+["2015–2016","スパイダーマン：ホームカミング","Spider-Man: Homecoming","film","2017","2016年","#b3121f","#1b3b8f",""],
+["2015–2016","ドクター・ストレンジ","Doctor Strange","film","2016","2016〜2017年","#1a5f7a","#b8561b",""],
+["2015–2016","ルーク・ケイジ／アイアン・フィスト／ディフェンダーズ／パニッシャー","The Defenders Saga","tv","2016","2016年〜","#3a2a1a","#b8860b","Netflixシリーズ"],
+["2017–2018","マイティ・ソー バトルロイヤル","Thor: Ragnarok","film","2017","2017年","#d14c8a","#2a6bd1",""],
+["2017–2018","アントマン＆ワスプ","Ant-Man and the Wasp","film","2018","2018年","#b01818","#c89b12",""],
+["2017–2018","アベンジャーズ／インフィニティ・ウォー","Avengers: Infinity War","film","2018","2018年","#5b2a86","#c07a12",""],
+["2017–2018","アベンジャーズ／エンドゲーム","Avengers: Endgame","film","2019","2018年→2023年","#2b1d4a","#a8841a","インフィニティ・サーガ完結"],
+["マルチバース","ホワット・イフ…？ S1–3","What If...?","anim","2021","別の世界線","#2d2a6b","#b8860b",""],
+["マルチバース","マーベル・ゾンビーズ","Marvel Zombies","anim","2025","別の世界線","#3d5a1e","#2a0f0f",""],
+["マルチバース","スパイダーマン：フレンドリー・ネイバーフッド","Your Friendly Neighborhood Spider-Man","anim","2025","別の世界線","#c21c2c","#1d4fa8",""],
+["2023","ワンダヴィジョン","WandaVision","series","2021","2023年","#8a1c4a","#2a2a2a",""],
+["2023","ファルコン＆ウィンター・ソルジャー","The Falcon and the Winter Soldier","series","2021","2023年","#1f3a6b","#5a5f68",""],
+["2023","スパイダーマン：ファー・フロム・ホーム","Spider-Man: Far From Home","film","2019","2024年","#1b5fa8","#b3121f",""],
+["2023","エターナルズ","Eternals","film","2021","2023年","#c9891a","#2a1f3a",""],
+["2023","シャン・チー／テン・リングスの伝説","Shang-Chi and the Legend of the Ten Rings","film","2021","2024年","#b3261e","#e0a326",""],
+["2024","ホークアイ","Hawkeye","series","2021","2024年12月","#5b2a86","#1a1a22",""],
+["2024","エコー","Echo","series","2024","2025年","#3a2a6b","#8a1c1c",""],
+["2024","ムーンナイト","Moon Knight","series","2022","2025年","#4a5260","#0f1216",""],
+["2024","ブラックパンサー／ワカンダ・フォーエバー","Black Panther: Wakanda Forever","film","2022","2024〜2025年","#2a1747","#0f5a6b",""],
+["2024","シー・ハルク：ザ・アトーニー","She-Hulk: Attorney at Law","series","2022","2024年","#2e7d32","#a33b8a",""],
+["2024","ミズ・マーベル","Ms. Marvel","series","2022","2025年","#c2185b","#e0a326",""],
+["2024","ソー：ラブ＆サンダー","Thor: Love and Thunder","film","2022","2025年","#d14c8a","#3b2a86",""],
+["2024","スパイダーマン：ノー・ウェイ・ホーム","Spider-Man: No Way Home","film","2021","2024年","#b3121f","#1a1a2e",""],
+["2024","ドクター・ストレンジ／マルチバース・オブ・マッドネス","Doctor Strange in the Multiverse of Madness","film","2022","2025年","#6b1d7a","#0f5a6b",""],
+["2025","ウェアウルフ・バイ・ナイト","Werewolf by Night","anim","2022","不明","#2a2a2a","#7a1414","モノクロの特別編"],
+["2025","ガーディアンズ・オブ・ギャラクシー：ホリデー・スペシャル","The Guardians of the Galaxy Holiday Special","anim","2022","2025年","#1f6b3a","#b3121f","特別編"],
+["2025","ガーディアンズ・オブ・ギャラクシー：VOLUME 3","Guardians of the Galaxy Vol. 3","film","2023","2026年","#c2410c","#1f3a6b",""],
+["2025","シークレット・インベージョン","Secret Invasion","series","2023","2025年","#1f4a2a","#0f1216",""],
+["2025","マーベルズ","The Marvels","film","2023","2026年","#1d3a8a","#a8841a",""],
+["2025","アントマン＆ワスプ：クアントマニア","Ant-Man and the Wasp: Quantumania","film","2023","2025年","#6b1d7a","#b01818",""],
+["時間の外側","ロキ S1–2","Loki","series","2021","時間の流れの外","#1f5a3a","#b8860b","TVAが舞台"],
+["2026–2027","デッドプール＆ウルヴァリン","Deadpool & Wolverine","film","2024","2024年","#a3121f","#d4a017",""],
+["2026–2027","アガサ・オール・アロング","Agatha All Along","series","2024","2026年","#4a1f6b","#1a3a2a",""],
+["2026–2027","アイアンハート","Ironheart","series","2025","2026年頃","#b3121f","#c9891a",""],
+["2026–2027","デアデビル：ボーン・アゲイン S1–2","Daredevil: Born Again","series","2025","2026年頃","#7a0f14","#0f1216","S2は2026年配信"],
+["2026–2027","キャプテン・アメリカ：ブレイブ・ニュー・ワールド","Captain America: Brave New World","film","2025","2027年","#1f3a6b","#b3121f",""],
+["2026–2027","サンダーボルツ*","Thunderbolts*","film","2025","2027年","#2a2a2a","#c9891a",""],
+["2026–2027","ワンダーマン","Wonder Man","series","2026","2027年頃","#a3121f","#1f1f28",""],
+["2026–2027","スパイダーマン：ブランド・ニュー・デイ","Spider-Man: Brand New Day","film","2026","ノー・ウェイ・ホームの後","#b3121f","#1d4fa8","2026年7月公開"],
+["別のアース","ファンタスティック・フォー：ファースト・ステップ","The Fantastic Four: First Steps","film","2025","アース828","#1d6fb8","#e8a23a","単独でも楽しめる"],
+["これから","ヴィジョンクエスト","VisionQuest","series","2026","未定","#8a1c4a","#b8860b","2026年配信予定"],
+["これから","アベンジャーズ／ドゥームズデイ","Avengers: Doomsday","film","2026","未定","#1f4a2a","#2a2a2a","2026年12月公開予定"]
+];
+const ERA_NOTE={"マルチバース":"本筋とは別の世界線","時間の外側":"作中の時代に当てはまらない","別のアース":"MCU本筋とは別の地球","これから":"公開・配信予定"};
+
+// おすすめ順: [章, 原題, 優先度 must/rec/opt, 見る理由]
+const PHASE_NOTE={"PHASE 1":"アベンジャーズ結成まで","PHASE 2":"S.H.I.E.L.D.崩壊とチームの亀裂","PHASE 3":"サノスとの決戦","PHASE 4":"エンドゲームのその後","PHASE 5":"マルチバースの広がり","PHASE 6":"ドゥームズデイへ"};
+const REC=[
+["PHASE 1","Iron Man","must","すべての始まり。トニー・スタークの原点"],
+["PHASE 1","The Incredible Hulk","opt","ロス将軍が初登場。飛ばしても本筋は追える"],
+["PHASE 1","Iron Man 2","rec","ブラック・ウィドウとS.H.I.E.L.D.が本格登場"],
+["PHASE 1","Thor","must","ロキ登場。アベンジャーズの敵を知る"],
+["PHASE 1","Captain America: The First Avenger","must","キャップと四次元キューブの原点"],
+["PHASE 1","The Avengers","must","ヒーロー6人がはじめて集結"],
+["PHASE 2","Iron Man 3","rec","ニューヨーク決戦後のトニーを描く"],
+["PHASE 2","Agents of S.H.I.E.L.D.","opt","映画の裏側を描くドラマ。7シーズンと長め"],
+["PHASE 2","Thor: The Dark World","opt","インフィニティ・ストーンのひとつが登場"],
+["PHASE 2","Captain America: The Winter Soldier","must","S.H.I.E.L.D.崩壊。以降の展開に直結"],
+["PHASE 2","Guardians of the Galaxy","must","宇宙編の入口。サノス陣営も登場"],
+["PHASE 2","Agent Carter","opt","ペギー・カーターの戦後。寄り道向き"],
+["PHASE 2","Avengers: Age of Ultron","must","ワンダとヴィジョンが登場"],
+["PHASE 2","Ant-Man","rec","量子世界が後の展開のカギになる"],
+["PHASE 2","Daredevil / Jessica Jones","rec","ボーン・アゲインの前に見ると深まる"],
+["PHASE 3","Captain America: Civil War","must","アベンジャーズ分裂。スパイダーマンとブラックパンサー初登場"],
+["PHASE 3","Doctor Strange","must","魔術とマルチバースの入口"],
+["PHASE 3","The Defenders Saga","opt","Netflix版ヒーローの集結。寄り道向き"],
+["PHASE 3","Guardians of the Galaxy Vol. 2","rec","スター・ロードの父をめぐる物語"],
+["PHASE 3","Spider-Man: Homecoming","must","トム・ホランド版スパイダーマンの単独作"],
+["PHASE 3","Thor: Ragnarok","must","インフィニティ・ウォー冒頭に直結"],
+["PHASE 3","Black Panther","must","ワカンダの物語。決戦の舞台にもなる"],
+["PHASE 3","Avengers: Infinity War","must","サノスとの決戦、前編"],
+["PHASE 3","Ant-Man and the Wasp","rec","量子世界がエンドゲームの伏線になる"],
+["PHASE 3","Captain Marvel","must","エンドゲームの重要人物。舞台は1995年"],
+["PHASE 3","Avengers: Endgame","must","11年分の物語の完結編","量子世界の仕組みは「アントマン」シリーズで登場。時間があれば先に"],
+["PHASE 3","Spider-Man: Far From Home","must","エンドゲーム直後の世界を描く"],
+["PHASE 4","WandaVision","must","マルチバース・オブ・マッドネスの前提"],
+["PHASE 4","The Falcon and the Winter Soldier","rec","新しいキャプテン・アメリカ誕生の物語"],
+["PHASE 4","Loki","must","時間とマルチバースの仕組みがわかる。以降の軸"],
+["PHASE 4","Black Widow","rec","エレーナ登場。サンダーボルツ*につながる"],
+["PHASE 4","What If...?","opt","もしもの世界。気楽に楽しめる"],
+["PHASE 4","Shang-Chi and the Legend of the Ten Rings","rec","新ヒーロー登場。アクションが見どころ"],
+["PHASE 4","Eternals","opt","独立色が強く、本筋への影響は小さめ"],
+["PHASE 4","Hawkeye","rec","ケイト・ビショップとエレーナのその後"],
+["PHASE 4","Spider-Man: No Way Home","must","歴代スパイダーマンが集結"],
+["PHASE 4","Moon Knight","opt","単独で楽しめるダークな一本"],
+["PHASE 4","Doctor Strange in the Multiverse of Madness","must","ワンダヴィジョンの続き","ワンダの事情はドラマ「ワンダヴィジョン」で描かれます。映画だけでも話は追えます"],
+["PHASE 4","Ms. Marvel","rec","マーベルズの前提になる"],
+["PHASE 4","Thor: Love and Thunder","opt","ソーの4作目。軽めに楽しめる"],
+["PHASE 4","I Am Groot","opt","ベビー・グルートの短編"],
+["PHASE 4","She-Hulk: Attorney at Law","opt","法廷コメディ。デアデビルも登場"],
+["PHASE 4","Werewolf by Night","opt","モノクロのホラー特別編"],
+["PHASE 4","Black Panther: Wakanda Forever","rec","ブラックパンサーの続編"],
+["PHASE 4","The Guardians of the Galaxy Holiday Special","opt","短い特別編。VOLUME 3の前に"],
+["PHASE 5","Ant-Man and the Wasp: Quantumania","rec","量子世界の冒険。カーンが登場"],
+["PHASE 5","Guardians of the Galaxy Vol. 3","rec","ガーディアンズの物語が完結"],
+["PHASE 5","Secret Invasion","opt","ニック・フューリーの物語"],
+["PHASE 5","The Marvels","rec","キャプテン・マーベルとミズ・マーベルが共演"],
+["PHASE 5","Echo","opt","ホークアイの続き。ボーン・アゲインにもつながる"],
+["PHASE 5","Deadpool & Wolverine","must","X-MENの世界とMCUが合流","時間を管理する組織TVAはドラマ「ロキ」で登場。見ていなくても楽しめます"],
+["PHASE 5","Agatha All Along","opt","ワンダヴィジョンのスピンオフ"],
+["PHASE 5","Captain America: Brave New World","rec","サム版キャプテン・アメリカ初の映画"],
+["PHASE 5","Daredevil: Born Again","rec","Netflix版デアデビルの続き"],
+["PHASE 5","Thunderbolts*","must","新チーム結成。ドゥームズデイに直結","主人公エレーナは映画「ブラック・ウィドウ」で登場。先に見ると入り込みやすいです"],
+["PHASE 5","Ironheart","opt","新ヒーロー、アイアンハートの物語"],
+["PHASE 5","Eyes of Wakanda","opt","ワカンダの歴史を描くアニメ"],
+["PHASE 6","The Fantastic Four: First Steps","must","ドゥームズデイの主要チーム"],
+["PHASE 6","Marvel Zombies","opt","別世界のホラーアニメ"],
+["PHASE 6","Your Friendly Neighborhood Spider-Man","opt","別世界のアニメ版スパイダーマン"],
+["PHASE 6","Wonder Man","opt","単独で楽しめる新作ドラマ"],
+["PHASE 6","Spider-Man: Brand New Day","rec","ノー・ウェイ・ホーム後のピーター"],
+["PHASE 6","VisionQuest","rec","ヴィジョンのその後"],
+["PHASE 6","Avengers: Doomsday","must","次の大決戦"]
+];
+const POSTERS=window.POSTERS||{};
+const IMG="https://image.tmdb.org/t/p/w342";
+function coverHTML(en,k,c1,c2,no){
+  const p=POSTERS[en];
+  return "<div class=\"cover"+(p?" has-img":"")+"\" style=\"background:linear-gradient(155deg,"+c1+","+c2+")\">"+
+    (p?"<img src=\""+IMG+p+"\" alt=\"\" loading=\"lazy\" onerror=\"this.parentNode.classList.remove('has-img');this.remove()\">":"")+
+    "<span class=\"kind\">"+KIND[k]+"</span><span class=\"no\">"+no+"</span><span class=\"badge\">視聴済み</span><span class=\"en\">"+en+"</span></div>";
+}
+const PRI={must:["必須","must"],rec:["推奨","rec"],opt:["寄り道OK","opt"]};
+const byEn={};D.forEach((d,i)=>byEn[d[2]]=i);
+
+let seen={},view="must",filter="all",mustOnly=false;
+try{seen=JSON.parse(localStorage.getItem("mcu-seen")||"{}");view=localStorage.getItem("mcu-view")||"must"}catch(e){}
+function save(){try{localStorage.setItem("mcu-seen",JSON.stringify(seen));localStorage.setItem("mcu-view",view)}catch(e){}}
+function prog(){const el=document.getElementById("progress");if(view==="must"){const r=rows();el.textContent="視聴済み "+r.filter(x=>seen["s"+x.i]).length+" ／ 必須"+r.length+"本";}else el.textContent="視聴済み "+Object.keys(seen).length+" ／ 全"+D.length+"作品";}
+
+function rows(){
+  if(view==="chrono")return D.map((d,i)=>({i,group:d[0],gnote:ERA_NOTE[d[0]]}));
+  const all=REC.map(r=>({i:byEn[r[1]],group:r[0],gnote:PHASE_NOTE[r[0]],pri:r[2],why:r[3],tip:r[4]}));
+  if(view==="must")return all.filter(r=>r.pri==="must"&&D[r.i][3]==="film");
+  return all;
+}
+function nextUp(){
+  const box=document.getElementById("next");
+  if(view==="chrono"){box.hidden=true;return;}
+  const list=rows();const idx=list.findIndex(r=>!seen["s"+r.i]);
+  if(idx<0){box.hidden=false;box.innerHTML="<div></div><div><div class=\"label\">NEXT</div><div class=\"title\">このリストは全部見終わりました！</div></div>";return;}
+  const r=list[idx],d=D[r.i];
+  box.hidden=false;
+  box.innerHTML=coverHTML(d[2],d[3],d[6],d[7],String(idx+1).padStart(2,"0"))+
+    "<div><div class=\"label\">次に見る作品</div><div class=\"title\">"+d[1]+"</div><div class=\"sub\">"+(r.why||"")+"</div><button type=\"button\" id=\"next-done\">見たのでチェック</button></div>";
+  document.getElementById("next-done").addEventListener("click",()=>{seen["s"+r.i]=1;save();render();});
+}
+function render(){
+  const isMust=view==="must",isRec=view==="rec"||isMust;
+  document.getElementById("filters").hidden=isMust;
+  document.getElementById("mustonly").hidden=view!=="rec";
+  document.getElementById("sep").hidden=view!=="rec";
+  document.getElementById("guide").textContent=isMust
+    ?"本編の流れを追うのに欠かせない映画だけを公開順に並べました。ドラマやアニメを見られなくても、ここだけでメインストーリーがわかります。"
+    :view==="rec"
+    ?"公開順をベースに、ドラマやアニメも含めて話のつながりが分かりやすい順番です。「必須」だけでも本筋を追えます。"
+    :"作品の中で起きた出来事の順番です。一度見た人の2周目におすすめです。";
+  const list=document.getElementById("list");list.innerHTML="";
+  let gridEl=null,cur=null,pos=0,shown=0;
+  rows().forEach(r=>{
+    const d=D[r.i];const [,jp,en,k,yr,inyr,c1,c2,note]=d;
+    pos++;
+    if(!isMust&&filter!=="all"&&filter!==k)return;
+    if(view==="rec"&&mustOnly&&r.pri!=="must")return;
+    shown++;
+    if(r.group!==cur){cur=r.group;const s=document.createElement("section");s.className="era";
+      s.innerHTML="<h2>"+r.group+(r.gnote?"<small>"+r.gnote+"</small>":"")+"</h2><div class=\"grid\"></div>";
+      gridEl=s.querySelector(".grid");list.appendChild(s);}
+    const id="s"+r.i, el=document.createElement("article");
+    el.className="item"+(seen[id]?" seen":"");
+    const soon=note.indexOf("予定")>=0;
+    el.innerHTML=coverHTML(en,k,c1,c2,String(pos).padStart(2,"0"))+
+      (isRec?"<span class=\"pri "+PRI[r.pri][1]+"\">"+PRI[r.pri][0]+"</span>":"")+
+      "<div class=\"jp\">"+jp+"</div>"+
+      (isRec?"<div class=\"why\">"+r.why+"</div>":"")+
+      (isMust&&r.tip?"<div class=\"tip\">"+r.tip+"</div>":"")+
+      "<div class=\"meta\">作中 <b>"+inyr+"</b> ／ "+yr+"年公開"+(note?"<br><span class=\""+(soon?"soon":"")+"\">"+note+"</span>":"")+"</div>"+
+      "<label class=\"check\"><input type=\"checkbox\" id=\""+id+"\""+(seen[id]?" checked":"")+"> 見た</label>";
+    el.querySelector("input").addEventListener("change",e=>{
+      if(e.target.checked)seen[id]=1;else delete seen[id];
+      save();el.classList.toggle("seen",e.target.checked);prog();nextUp();});
+    gridEl.appendChild(el);
+  });
+  nextUp();
+  if(!shown)list.innerHTML="<p class=\"empty\">この条件に当てはまる作品はありません。</p>";
+  prog();
+}
+document.querySelectorAll(".view").forEach(b=>b.addEventListener("click",()=>{view=b.dataset.v;syncView();save();render();}));
+function syncView(){document.querySelectorAll(".view").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.v===view)));}
+document.querySelectorAll(".chip[data-f]").forEach(b=>b.addEventListener("click",()=>{
+  filter=b.dataset.f;
+  document.querySelectorAll(".chip[data-f]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  render();}));
+document.getElementById("mustonly").addEventListener("click",e=>{mustOnly=!mustOnly;e.currentTarget.setAttribute("aria-pressed",String(mustOnly));render();});
+syncView();render();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
