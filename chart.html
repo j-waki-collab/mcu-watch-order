@@ -26,28 +26,31 @@ a.back{color:var(--muted);font-size:13px;text-decoration:none;border-bottom:1px 
 h1{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:900;font-size:clamp(36px,7vw,64px);line-height:.95;margin:14px 0 0;text-transform:uppercase}
 h1 span{color:var(--accent)}
 .lead{color:var(--muted);max-width:62ch;margin:10px 0 0}
-.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:18px 0 12px}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 10px}
+.pick{font:inherit;font-size:14px;font-weight:700;padding:9px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--chip);color:var(--ink);max-width:100%}
 .chip{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:6px 12px;border-radius:999px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.chip:focus-visible,.node:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chip:focus-visible,.node:focus-visible,.pick:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.count{font-size:13px;color:var(--muted)}
 .legend{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 12px;font-size:12px;color:var(--muted)}
 .legend b{display:inline-block;width:22px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
-.scroller{overflow:auto;border:1px solid var(--boardline);border-radius:10px;background:var(--board);-webkit-overflow-scrolling:touch}
-.board{position:relative;width:1600px;height:1060px;background:
-  radial-gradient(60% 45% at 38% 48%,rgba(58,134,209,.16),transparent 70%),
-  radial-gradient(45% 40% at 78% 55%,rgba(211,47,58,.14),transparent 70%),
+.scroller{overflow:auto;border:1px solid var(--boardline);border-radius:10px;background:var(--board);-webkit-overflow-scrolling:touch;max-height:78vh}
+.board{position:relative;background:
+  radial-gradient(55% 40% at 30% 40%,rgba(58,134,209,.14),transparent 70%),
+  radial-gradient(45% 40% at 80% 60%,rgba(211,47,58,.12),transparent 70%),
   repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 1px,transparent 1px 44px),
   repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 44px)}
 .board svg{position:absolute;inset:0;width:100%;height:100%}
-.node{position:absolute;transform:translate(-50%,-50%);width:118px;text-align:center;background:none;border:0;padding:0;color:#ecebe8;cursor:pointer;font:inherit}
-.face{width:82px;height:82px;margin:0 auto;border-radius:50%;overflow:hidden;border:2px solid #4a4d57;background:#2a2c33;display:flex;align-items:center;justify-content:center;font-family:"Big Shoulders Display",sans-serif;font-size:30px;color:#9a9ca5}
+.zone{position:absolute;border:1px dashed #3d404a;border-radius:14px;pointer-events:none}
+.zone span{position:absolute;top:-11px;left:14px;background:#1b1c22;padding:0 8px;font-family:"Big Shoulders Display",sans-serif;font-size:17px;letter-spacing:.1em;color:#7d808a;text-transform:uppercase}
+.node{position:absolute;transform:translate(-50%,-50%);width:150px;text-align:center;background:none;border:0;padding:0;color:#ecebe8;cursor:pointer;font:inherit}
+.face{width:78px;height:78px;margin:0 auto;border-radius:50%;overflow:hidden;border:2px solid #4a4d57;background:#2a2c33;display:flex;align-items:center;justify-content:center;font-family:"Big Shoulders Display",sans-serif;font-size:28px;color:#9a9ca5}
 .face img{width:100%;height:100%;object-fit:cover;display:block}
 .node .nm,.node .ac{display:block}
 .node .nm{font-size:12px;font-weight:700;line-height:1.25;margin-top:6px;text-shadow:0 1px 3px #000}
 .node .ac{font-size:10px;color:#a8aab3;line-height:1.25;text-shadow:0 1px 3px #000}
-.node.dim{opacity:.22}
+.node.dim{opacity:.18}
 .node.on .face{border-color:var(--accent);box-shadow:0 0 0 4px rgba(200,16,46,.28)}
-.tag{position:absolute;transform:translate(-50%,-50%);font-family:"Big Shoulders Display",sans-serif;font-size:19px;letter-spacing:.12em;color:#6f727c;text-transform:uppercase;pointer-events:none}
 .edgelabel{font:700 11px "Zen Kaku Gothic New",sans-serif;fill:#ecebe8;paint-order:stroke;stroke:#14151a;stroke-width:4px;stroke-linejoin:round}
 .hint{color:var(--muted);font-size:12px;margin-top:10px}
 .panel{margin-top:16px;border:1px solid var(--line);border-radius:10px;padding:14px}
@@ -57,22 +60,19 @@ h1 span{color:var(--accent)}
 .panel li{font-size:13px;margin-bottom:4px}
 footer{color:var(--muted);font-size:12px;margin-top:28px;max-width:70ch}
 .tmdb img{display:block;height:12px;width:auto;margin-bottom:6px}
-@media (max-width:640px){.tools{gap:6px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <a class="back" href="./">← 視聴順リストに戻る</a>
   <h1>MCU <span>キャラ</span>相関図</h1>
-  <p class="lead">主要キャラクターのつながりを、陣営ごとに並べた図です。顔をタップすると、そのキャラの関係だけが残ります。</p>
+  <p class="lead">主要キャラクターのつながりを、陣営ごとに並べた図です。作品を選ぶと、その作品に出てくる人物とその作品での関係だけが表示されます。顔をタップすると、そのキャラの関係だけが残ります。</p>
 
-  <div class="tools" role="toolbar" aria-label="陣営で絞り込み">
-    <button class="chip" data-g="all" aria-pressed="true">すべて</button>
-    <button class="chip" data-g="avengers" aria-pressed="false">アベンジャーズ</button>
-    <button class="chip" data-g="shield" aria-pressed="false">S.H.I.E.L.D.</button>
-    <button class="chip" data-g="wakanda" aria-pressed="false">ワカンダ</button>
-    <button class="chip" data-g="guardians" aria-pressed="false">ガーディアンズ</button>
-    <button class="chip" data-g="villain" aria-pressed="false">敵対勢力</button>
+  <div class="tools">
+    <label for="work" class="count">作品を選ぶ</label>
+    <select class="pick" id="work"></select>
+    <button class="chip" id="reset" type="button">選択を解除</button>
+    <span class="count" id="count"></span>
   </div>
   <div class="legend">
     <span><b style="background:var(--rel-blood)"></b>血縁・家族</span>
@@ -82,141 +82,333 @@ footer{color:var(--muted);font-size:12px;margin-top:28px;max-width:70ch}
     <span><b style="background:var(--rel-love)"></b>恋愛</span>
   </div>
 
-  <div class="scroller"><div class="board" id="board"><svg id="lines" viewBox="0 0 1600 1060" preserveAspectRatio="none"></svg></div></div>
-  <p class="hint">図は横にスクロールできます。顔をもう一度タップすると全体表示に戻ります。</p>
+  <div class="scroller"><div class="board" id="board"><svg id="lines"></svg></div></div>
+  <p class="hint">図は指でスクロールできます。顔をもう一度タップすると全体表示に戻ります。</p>
 
   <div class="panel" id="panel" hidden></div>
 
   <footer>
     <a class="tmdb" href="https://www.themoviedb.org" target="_blank" rel="noopener"><img src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg" alt="TMDB" width="92" height="12" onerror="this.parentNode.textContent='TMDB'"></a>
-    顔写真は俳優の写真をTMDBから取得しています。This product uses the TMDB API but is not endorsed or certified by TMDB. 関係の分類は主要な作品での描かれ方をもとにした要約です。
+    顔写真は俳優の写真をTMDBから取得しています。This product uses the TMDB API but is not endorsed or certified by TMDB. 関係の分類は、主要な作品での描かれ方をもとにした要約です。
   </footer>
 </div>
 
 <script src="people.js"></script>
 <script>
 const PEOPLE=window.PEOPLE||{};
-// [id, キャラ名, 俳優名, 陣営, x, y]
-const C=[
-["tony","アイアンマン／トニー・スターク","Robert Downey Jr.","avengers",470,470],
-["cap","キャプテン・アメリカ／スティーブ","Chris Evans",'avengers',300,560],
-["thor","ソー","Chris Hemsworth","avengers",600,330],
-["hulk","ハルク／ブルース・バナー","Mark Ruffalo","avengers",650,640],
-["widow","ブラック・ウィドウ／ナターシャ","Scarlett Johansson","avengers",430,700],
-["hawkeye","ホークアイ／クリント","Jeremy Renner","avengers",270,740],
-["fury","ニック・フューリー","Samuel L. Jackson","shield",110,330],
-["coulson","フィル・コールソン","Clark Gregg","shield",110,470],
-["peggy","ペギー・カーター","Hayley Atwell","shield",110,610],
-["redskull","レッドスカル","Hugo Weaving","villain",280,140],
-["bucky","ウィンター・ソルジャー／バッキー","Sebastian Stan","avengers",450,160],
-["sam","ファルコン／サム・ウィルソン","Anthony Mackie","avengers",700,160],
-["loki","ロキ","Tom Hiddleston","villain",600,180],
-["wanda","スカーレット・ウィッチ／ワンダ","Elizabeth Olsen","avengers",810,450],
-["vision","ヴィジョン","Paul Bettany","avengers",950,380],
-["pietro","クイックシルバー／ピエトロ","Aaron Taylor-Johnson","avengers",810,300],
-["ultron","ウルトロン","James Spader","villain",950,230],
-["scott","アントマン／スコット","Paul Rudd","avengers",350,910],
-["hope","ワスプ／ホープ","Evangeline Lilly","avengers",500,910],
-["hank","ハンク・ピム","Michael Douglas","avengers",200,910],
-["peter","スパイダーマン／ピーター","Tom Holland","avengers",640,810],
-["strange","ドクター・ストレンジ","Benedict Cumberbatch","avengers",840,700],
-["carol","キャプテン・マーベル／キャロル","Brie Larson","avengers",980,580],
-["tchalla","ブラックパンサー／ティ・チャラ","Chadwick Boseman","wakanda",1080,150],
-["shuri","シュリ","Letitia Wright","wakanda",1250,150],
-["okoye","オコエ","Danai Gurira","wakanda",1250,280],
-["killmonger","キルモンガー","Michael B. Jordan","villain",1080,290],
-["thanos","サノス","Josh Brolin","villain",1180,480],
-["quill","スター・ロード／ピーター・クイル","Chris Pratt","guardians",1100,770],
-["gamora","ガモーラ","Zoe Saldaña","guardians",1260,700],
-["nebula","ネビュラ","Karen Gillan","guardians",1420,700],
-["drax","ドラックス","Dave Bautista","guardians",1080,920],
-["rocket","ロケット","Bradley Cooper","guardians",1250,930],
-["groot","グルート","Vin Diesel","guardians",1420,880]
+const GROUP={
+  shield:"S.H.I.E.L.D.",avengers:"アベンジャーズ",newgen:"新世代ヒーロー",asgard:"アスガルド",
+  wakanda:"ワカンダ",guardians:"ガーディアンズ",street:"ストリート系",mutant:"ミュータント",
+  f4:"ファンタスティック・フォー",villain:"敵対勢力"
+};
+const ORDER=["shield","avengers","newgen","asgard","wakanda","guardians","street","mutant","f4","villain"];
+// id: [キャラ名, 俳優名, 陣営]
+const C={
+ tony:["アイアンマン／トニー・スターク","Robert Downey Jr.","avengers"],
+ pepper:["ペッパー・ポッツ","Gwyneth Paltrow","avengers"],
+ happy:["ハッピー・ホーガン","Jon Favreau","avengers"],
+ rhodey:["ウォーマシン／ローディ","Don Cheadle","avengers"],
+ cap:["キャプテン・アメリカ／スティーブ","Chris Evans","avengers"],
+ bucky:["ウィンター・ソルジャー／バッキー","Sebastian Stan","avengers"],
+ sam:["ファルコン／サム・ウィルソン","Anthony Mackie","avengers"],
+ widow:["ブラック・ウィドウ／ナターシャ","Scarlett Johansson","avengers"],
+ hawkeye:["ホークアイ／クリント","Jeremy Renner","avengers"],
+ hulk:["ハルク／ブルース・バナー","Mark Ruffalo","avengers"],
+ wanda:["スカーレット・ウィッチ／ワンダ","Elizabeth Olsen","avengers"],
+ vision:["ヴィジョン","Paul Bettany","avengers"],
+ pietro:["クイックシルバー／ピエトロ","Aaron Taylor-Johnson","avengers"],
+ scott:["アントマン／スコット","Paul Rudd","avengers"],
+ hope:["ワスプ／ホープ","Evangeline Lilly","avengers"],
+ hank:["ハンク・ピム","Michael Douglas","avengers"],
+ janet:["ジャネット・ヴァン・ダイン","Michelle Pfeiffer","avengers"],
+ cassie:["キャシー・ラング","Kathryn Newton","avengers"],
+ strange:["ドクター・ストレンジ","Benedict Cumberbatch","avengers"],
+ wong:["ウォン","Benedict Wong","avengers"],
+ carol:["キャプテン・マーベル／キャロル","Brie Larson","avengers"],
+ peter:["スパイダーマン／ピーター","Tom Holland","newgen"],
+ mj:["MJ","Zendaya","newgen"],
+ ned:["ネッド","Jacob Batalon","newgen"],
+ may:["メイおばさん","Marisa Tomei","newgen"],
+ kate:["ケイト・ビショップ","Hailee Steinfeld","newgen"],
+ yelena:["エレーナ・ベロワ","Florence Pugh","newgen"],
+ redguardian:["レッドガーディアン／アレクセイ","David Harbour","newgen"],
+ walker:["USエージェント／ジョン・ウォーカー","Wyatt Russell","newgen"],
+ ava:["ゴースト／エイヴァ","Hannah John-Kamen","newgen"],
+ bob:["セントリー／ボブ","Lewis Pullman","newgen"],
+ valentina:["ヴァレンティーナ","Julia Louis-Dreyfus","shield"],
+ monica:["モニカ・ランボー","Teyonah Parris","newgen"],
+ kamala:["ミズ・マーベル／カマラ","Iman Vellani","newgen"],
+ riri:["アイアンハート／リリ","Dominique Thorne","newgen"],
+ shang:["シャン・チー","Simu Liu","newgen"],
+ xialing:["シャーリン","Meng'er Zhang","newgen"],
+ fury:["ニック・フューリー","Samuel L. Jackson","shield"],
+ hill:["マリア・ヒル","Cobie Smulders","shield"],
+ coulson:["フィル・コールソン","Clark Gregg","shield"],
+ peggy:["ペギー・カーター","Hayley Atwell","shield"],
+ odin:["オーディン","Anthony Hopkins","asgard"],
+ valkyrie:["ヴァルキリー","Tessa Thompson","asgard"],
+ heimdall:["ヘイムダル","Idris Elba","asgard"],
+ jane:["ジェーン・フォスター","Natalie Portman","asgard"],
+ korg:["コルグ","Taika Waititi","asgard"],
+ thor:["ソー","Chris Hemsworth","asgard"],
+ tchalla:["ブラックパンサー／ティ・チャラ","Chadwick Boseman","wakanda"],
+ shuri:["シュリ","Letitia Wright","wakanda"],
+ okoye:["オコエ","Danai Gurira","wakanda"],
+ nakia:["ナキア","Lupita Nyong'o","wakanda"],
+ ramonda:["ラモンダ","Angela Bassett","wakanda"],
+ mbaku:["ムバク","Winston Duke","wakanda"],
+ quill:["スター・ロード／ピーター・クイル","Chris Pratt","guardians"],
+ gamora:["ガモーラ","Zoe Saldaña","guardians"],
+ drax:["ドラックス","Dave Bautista","guardians"],
+ rocket:["ロケット","Bradley Cooper","guardians"],
+ groot:["グルート","Vin Diesel","guardians"],
+ nebula:["ネビュラ","Karen Gillan","guardians"],
+ mantis:["マンティス","Pom Klementieff","guardians"],
+ yondu:["ヨンドゥ","Michael Rooker","guardians"],
+ matt:["デアデビル／マット","Charlie Cox","street"],
+ frank:["パニッシャー／フランク","Jon Bernthal","street"],
+ jessica:["ジェシカ・ジョーンズ","Krysten Ritter","street"],
+ luke:["ルーク・ケイジ","Mike Colter","street"],
+ echo:["エコー／マヤ","Alaqua Cox","street"],
+ deadpool:["デッドプール","Ryan Reynolds","mutant"],
+ logan:["ウルヴァリン／ローガン","Hugh Jackman","mutant"],
+ reed:["ミスター・ファンタスティック／リード","Pedro Pascal","f4"],
+ sue:["インビジブル・ウーマン／スー","Vanessa Kirby","f4"],
+ johnny:["ヒューマン・トーチ／ジョニー","Joseph Quinn","f4"],
+ ben:["シング／ベン","Ebon Moss-Bachrach","f4"],
+ thanos:["サノス","Josh Brolin","villain"],
+ loki:["ロキ","Tom Hiddleston","villain"],
+ sylvie:["シルヴィ","Sophia Di Martino","villain"],
+ mobius:["メビウス","Owen Wilson","villain"],
+ kang:["征服者カーン","Jonathan Majors","villain"],
+ ultron:["ウルトロン","James Spader","villain"],
+ hela:["ヘラ","Cate Blanchett","villain"],
+ killmonger:["キルモンガー","Michael B. Jordan","villain"],
+ namor:["ネイモア","Tenoch Huerta","villain"],
+ fisk:["キングピン／フィスク","Vincent D'Onofrio","villain"],
+ redskull:["レッドスカル","Hugo Weaving","villain"],
+ ronan:["ロナン","Lee Pace","villain"],
+ ego:["エゴ","Kurt Russell","villain"],
+ vulture:["ヴァルチャー","Michael Keaton","villain"],
+ mysterio:["ミステリオ","Jake Gyllenhaal","villain"],
+ goblin:["グリーン・ゴブリン","Willem Dafoe","villain"],
+ agatha:["アガサ・ハークネス","Kathryn Hahn","villain"],
+ wenwu:["ウェンウー","Tony Leung","villain"],
+ doom:["ドクター・ドゥーム","Robert Downey Jr.","villain"]
+};
+// 全体図の関係: [A, B, 種類, ラベル]
+const REL=[
+ ["tony","pepper","love","恋人から夫婦へ"],
+ ["tony","happy","ally","相棒"],
+ ["tony","rhodey","ally","親友"],
+ ["tony","cap","enemy","協定で対立"],
+ ["tony","peter","mentor","師弟"],
+ ["tony","hulk","ally","科学仲間"],
+ ["tony","ultron","mentor","生みの親"],
+ ["tony","strange","ally","協力"],
+ ["tony","thanos","enemy","決着"],
+ ["cap","bucky","ally","親友"],
+ ["cap","peggy","love","想い合う"],
+ ["cap","sam","mentor","盾を継承"],
+ ["cap","redskull","enemy","宿敵"],
+ ["cap","widow","ally","相棒"],
+ ["bucky","yelena","ally","チーム仲間"],
+ ["sam","walker","enemy","後任と衝突"],
+ ["widow","hawkeye","ally","相棒"],
+ ["widow","yelena","blood","偽りの家族の姉妹"],
+ ["widow","redguardian","blood","偽りの家族の父"],
+ ["yelena","redguardian","blood","父と娘"],
+ ["hawkeye","kate","mentor","師弟"],
+ ["hawkeye","echo","enemy","因縁"],
+ ["fury","tony","ally","勧誘"],
+ ["fury","carol","ally","旧知"],
+ ["fury","hill","ally","右腕"],
+ ["fury","coulson","ally","上司と部下"],
+ ["fury","widow","ally","上司"],
+ ["peggy","fury","ally","S.H.I.E.L.D.の系譜"],
+ ["valentina","yelena","ally","雇い主"],
+ ["valentina","walker","ally","雇い主"],
+ ["hulk","widow","love","惹かれ合う"],
+ ["hulk","thor","ally","戦友"],
+ ["thor","loki","blood","義兄弟"],
+ ["thor","odin","blood","父と息子"],
+ ["thor","jane","love","恋人"],
+ ["thor","valkyrie","ally","戦友"],
+ ["thor","heimdall","ally","忠臣"],
+ ["thor","korg","ally","相棒"],
+ ["thor","hela","enemy","王位争い"],
+ ["odin","hela","blood","父と娘"],
+ ["odin","loki","blood","育ての父"],
+ ["loki","sylvie","love","もう一人の自分"],
+ ["loki","mobius","ally","相棒"],
+ ["kang","loki","enemy","時間をめぐる対立"],
+ ["kang","scott","enemy","量子世界の因縁"],
+ ["wanda","vision","love","恋人"],
+ ["wanda","pietro","blood","双子"],
+ ["wanda","agatha","enemy","魔女の対立"],
+ ["wanda","monica","ally","理解者"],
+ ["ultron","vision","mentor","生みの親"],
+ ["scott","hope","love","恋人"],
+ ["scott","cassie","blood","父と娘"],
+ ["hank","hope","blood","父と娘"],
+ ["hank","janet","love","夫婦"],
+ ["hank","scott","mentor","師弟"],
+ ["peter","mj","love","恋人"],
+ ["peter","ned","ally","親友"],
+ ["peter","may","blood","育ての親"],
+ ["peter","happy","ally","見守り役"],
+ ["peter","strange","mentor","導き手"],
+ ["peter","vulture","enemy","初めての強敵"],
+ ["peter","mysterio","enemy","裏切り"],
+ ["peter","goblin","enemy","宿敵"],
+ ["strange","wong","ally","相棒"],
+ ["carol","monica","blood","家族同然"],
+ ["carol","kamala","mentor","憧れの存在"],
+ ["kamala","monica","ally","チーム"],
+ ["shang","wenwu","blood","父と息子"],
+ ["shang","xialing","blood","兄と妹"],
+ ["tchalla","shuri","blood","兄と妹"],
+ ["tchalla","ramonda","blood","母と息子"],
+ ["tchalla","nakia","love","恋人"],
+ ["tchalla","okoye","ally","王と護衛"],
+ ["tchalla","mbaku","ally","和解した好敵手"],
+ ["tchalla","killmonger","blood","いとこ"],
+ ["tchalla","killmonger","enemy","王位争い"],
+ ["shuri","ramonda","blood","母と娘"],
+ ["shuri","namor","enemy","海と陸の対立"],
+ ["shuri","riri","ally","協力"],
+ ["quill","gamora","love","恋人"],
+ ["quill","yondu","mentor","育ての親"],
+ ["quill","ego","blood","父と息子"],
+ ["quill","rocket","ally","仲間"],
+ ["quill","drax","ally","仲間"],
+ ["rocket","groot","ally","相棒"],
+ ["drax","mantis","ally","名コンビ"],
+ ["gamora","nebula","blood","姉妹"],
+ ["thanos","gamora","blood","義理の父娘"],
+ ["thanos","nebula","blood","義理の父娘"],
+ ["thanos","ronan","ally","手駒"],
+ ["drax","thanos","enemy","復讐"],
+ ["carol","thanos","enemy","対決"],
+ ["hulk","thanos","enemy","対決"],
+ ["thor","thanos","enemy","対決"],
+ ["matt","fisk","enemy","宿敵"],
+ ["matt","frank","enemy","正義の衝突"],
+ ["matt","jessica","ally","共闘"],
+ ["jessica","luke","love","恋人"],
+ ["echo","fisk","blood","育ての親"],
+ ["matt","echo","ally","共闘"],
+ ["deadpool","logan","ally","凸凹コンビ"],
+ ["reed","sue","love","夫婦"],
+ ["sue","johnny","blood","姉と弟"],
+ ["reed","ben","ally","親友"],
+ ["reed","doom","enemy","宿敵"],
+ ["peter","tony","ally","信頼"],
+ ["cap","thor","ally","戦友"]
 ];
-// [A, B, 種類, ラベル]
-const R=[
-["tony","cap","enemy","対立"],
-["tony","peter","mentor","師弟"],
-["tony","hulk","ally","科学仲間"],
-["tony","ultron","mentor","生みの親"],
-["tony","strange","ally","協力"],
-["tony","thanos","enemy","対決"],
-["cap","bucky","ally","親友"],
-["cap","peggy","love","恋人"],
-["cap","sam","mentor","盾を継承"],
-["cap","redskull","enemy","宿敵"],
-["thor","loki","blood","義兄弟"],
-["thor","thanos","enemy","対決"],
-["fury","tony","ally","勧誘"],
-["fury","carol","ally","旧知"],
-["fury","coulson","ally","上司と部下"],
-["peggy","fury","ally","S.H.I.E.L.D.創設"],
-["widow","hawkeye","ally","相棒"],
-["widow","fury","ally","部下"],
-["wanda","vision","love","恋人"],
-["wanda","pietro","blood","双子"],
-["ultron","vision","mentor","生みの親"],
-["scott","hope","love","恋人"],
-["hank","hope","blood","父と娘"],
-["hank","scott","mentor","師弟"],
-["peter","strange","ally","協力"],
-["tchalla","shuri","blood","兄と妹"],
-["tchalla","okoye","ally","王と護衛"],
-["tchalla","killmonger","blood","いとこ"],
-["tchalla","killmonger","enemy","王位争い"],
-["thanos","gamora","blood","義理の父娘"],
-["thanos","nebula","blood","義理の父娘"],
-["gamora","nebula","blood","姉妹"],
-["quill","gamora","love","恋人"],
-["quill","rocket","ally","仲間"],
-["rocket","groot","ally","相棒"],
-["drax","thanos","enemy","復讐"],
-["carol","thanos","enemy","対決"],
-["hulk","thanos","enemy","対決"]
+// 作品ごとの相関図: [表示名, 登場人物, その作品での関係]
+const WORKS=[
+ ["アイアンマン",["tony","pepper","happy","rhodey"],[["tony","pepper","love","上司と秘書"],["tony","happy","ally","運転手で相棒"],["tony","rhodey","ally","親友"]]],
+ ["アベンジャーズ",["tony","cap","thor","hulk","widow","hawkeye","loki","fury","coulson","hill"],[["fury","tony","ally","チームに勧誘"],["fury","coulson","ally","上司と部下"],["fury","hill","ally","右腕"],["thor","loki","blood","義兄弟の対決"],["loki","hawkeye","enemy","操られる"],["tony","cap","enemy","初対面で衝突"],["widow","hawkeye","ally","相棒"],["tony","hulk","ally","科学仲間"]]],
+ ["キャプテン・アメリカ／ウィンター・ソルジャー",["cap","widow","sam","fury","hill","bucky"],[["cap","bucky","enemy","操られた親友と対決"],["cap","widow","ally","逃亡中の相棒"],["cap","sam","ally","新しい相棒"],["fury","hill","ally","右腕"],["fury","cap","ally","秘密を託す"]]],
+ ["アベンジャーズ／エイジ・オブ・ウルトロン",["tony","cap","thor","hulk","widow","hawkeye","ultron","wanda","pietro","vision"],[["tony","ultron","mentor","生みの親"],["ultron","vision","mentor","生みの親"],["wanda","pietro","blood","双子"],["wanda","ultron","ally","はじめは協力"],["hulk","widow","love","惹かれ合う"],["tony","cap","enemy","方針で対立"]]],
+ ["シビル・ウォー／キャプテン・アメリカ",["tony","cap","bucky","rhodey","widow","sam","peter","tchalla","scott","vision","wanda","hawkeye"],[["tony","cap","enemy","協定で決裂"],["cap","bucky","ally","親友を守る"],["tchalla","bucky","enemy","父の仇と誤解"],["tony","peter","mentor","スカウト"],["tony","rhodey","ally","同じ側"],["vision","wanda","love","揺れる心"],["hawkeye","wanda","ally","連れ出す"],["scott","cap","ally","加勢"]]],
+ ["ガーディアンズ・オブ・ギャラクシー",["quill","gamora","drax","rocket","groot","yondu","ronan","nebula","thanos"],[["quill","yondu","mentor","育ての親"],["quill","gamora","love","惹かれ合う"],["rocket","groot","ally","相棒"],["gamora","nebula","blood","姉妹の確執"],["thanos","gamora","blood","義理の父娘"],["thanos","ronan","ally","手を組む"],["drax","ronan","enemy","家族の仇"]]],
+ ["マイティ・ソー バトルロイヤル",["thor","loki","hela","valkyrie","hulk","odin","heimdall","korg"],[["odin","thor","blood","父と息子"],["odin","hela","blood","封印した娘"],["thor","hela","enemy","王位争い"],["thor","loki","blood","義兄弟"],["thor","hulk","ally","闘技場の友"],["thor","valkyrie","ally","戦友"],["thor","korg","ally","相棒"],["thor","heimdall","ally","忠臣"]]],
+ ["ブラックパンサー",["tchalla","shuri","okoye","nakia","ramonda","mbaku","killmonger"],[["tchalla","shuri","blood","兄と妹"],["tchalla","ramonda","blood","母と息子"],["tchalla","nakia","love","恋人"],["tchalla","okoye","ally","王と護衛"],["tchalla","killmonger","blood","いとこ"],["tchalla","killmonger","enemy","王位争い"],["tchalla","mbaku","ally","好敵手から味方へ"]]],
+ ["アベンジャーズ／インフィニティ・ウォー",["thanos","gamora","nebula","quill","tony","strange","peter","thor","rocket","groot","cap","wanda","vision","tchalla","okoye","hulk","drax","mantis"],[["thanos","gamora","blood","義理の父娘の悲劇"],["quill","gamora","love","恋人"],["tony","strange","ally","宇宙で共闘"],["tony","peter","mentor","師弟"],["thor","rocket","ally","武器を探す旅"],["wanda","vision","love","究極の選択"],["tchalla","cap","ally","ワカンダで共闘"],["thanos","tony","enemy","直接対決"],["thanos","thor","enemy","直接対決"]]],
+ ["アベンジャーズ／エンドゲーム",["tony","cap","thor","hulk","widow","hawkeye","scott","carol","nebula","rhodey","thanos","pepper","valkyrie","peggy"],[["widow","hawkeye","ally","犠牲を巡る相棒"],["tony","pepper","love","家族となる"],["cap","peggy","love","戻る場所"],["scott","hulk","ally","時間の旅を提案"],["nebula","thanos","blood","決別"],["carol","thanos","enemy","真っ向勝負"],["tony","thanos","enemy","決着"],["cap","thor","ally","最後の共闘"]]],
+ ["スパイダーマン：ノー・ウェイ・ホーム",["peter","mj","ned","may","strange","goblin","vulture","mysterio"],[["peter","mj","love","恋人"],["peter","ned","ally","親友"],["peter","may","blood","育ての親"],["peter","strange","mentor","導き手と対立"],["peter","goblin","enemy","最大の悲劇"],["peter","mysterio","enemy","汚名の原因"]]],
+ ["ワンダヴィジョン",["wanda","vision","agatha","monica"],[["wanda","vision","love","作り出した幸せ"],["wanda","agatha","enemy","力を狙われる"],["wanda","monica","ally","理解者"]]],
+ ["ロキ",["loki","sylvie","mobius","kang"],[["loki","sylvie","love","もう一人の自分"],["loki","mobius","ally","相棒"],["sylvie","kang","enemy","時間の管理者と対決"],["loki","kang","enemy","時間をめぐる対立"]]],
+ ["ブラックパンサー／ワカンダ・フォーエバー",["shuri","ramonda","okoye","namor","riri","mbaku"],[["shuri","ramonda","blood","母と娘"],["shuri","namor","enemy","海と陸の対立"],["shuri","riri","ally","才能を守る"],["shuri","okoye","ally","王と護衛"],["ramonda","okoye","enemy","責任を問う"]]],
+ ["シャン・チー／テン・リングスの伝説",["shang","xialing","wenwu"],[["shang","wenwu","blood","父と息子"],["shang","xialing","blood","兄と妹"],["xialing","wenwu","blood","父と娘の断絶"]]],
+ ["マーベルズ",["carol","monica","kamala","fury"],[["carol","monica","blood","家族同然の再会"],["carol","kamala","mentor","憧れの存在"],["kamala","monica","ally","入れ替わるチーム"],["fury","carol","ally","旧知"]]],
+ ["デアデビル／ディフェンダーズ",["matt","fisk","frank","jessica","luke","echo"],[["matt","fisk","enemy","宿敵"],["matt","frank","enemy","正義のぶつかり合い"],["matt","jessica","ally","共闘"],["jessica","luke","love","恋人"],["echo","fisk","blood","育ての親"]]],
+ ["デッドプール＆ウルヴァリン",["deadpool","logan"],[["deadpool","logan","ally","凸凹コンビ"]]],
+ ["サンダーボルツ*",["yelena","walker","ava","redguardian","bob","valentina","bucky"],[["yelena","redguardian","blood","父と娘"],["valentina","yelena","ally","雇い主"],["valentina","walker","ally","雇い主"],["yelena","bob","ally","心を救う"],["yelena","walker","enemy","反発"],["bucky","yelena","ally","チーム仲間"]]],
+ ["ファンタスティック・フォー：ファースト・ステップ",["reed","sue","johnny","ben"],[["reed","sue","love","夫婦"],["sue","johnny","blood","姉と弟"],["reed","ben","ally","親友"],["johnny","ben","ally","口げんかする仲間"]]],
+ ["アントマン＆ワスプ",["scott","hope","hank","janet","cassie"],[["scott","hope","love","恋人"],["hank","hope","blood","父と娘"],["hank","janet","love","夫婦"],["scott","cassie","blood","父と娘"],["hank","scott","mentor","師弟"]]]
 ];
 const COLOR={blood:"var(--rel-blood)",ally:"var(--rel-ally)",enemy:"var(--rel-enemy)",mentor:"var(--rel-mentor)",love:"var(--rel-love)"};
 const TYPE={blood:"血縁・家族",ally:"協力・相棒",enemy:"対立",mentor:"師弟・継承",love:"恋愛"};
-const GROUP={avengers:"アベンジャーズ",shield:"S.H.I.E.L.D.",wakanda:"ワカンダ",guardians:"ガーディアンズ",villain:"敵対勢力"};
-const TAGS=[["S.H.I.E.L.D.",110,230],["AVENGERS",430,600],["WAKANDA",1165,80],["GUARDIANS",1250,1000],["VILLAINS",1180,390]];
-const P={};C.forEach(c=>P[c[0]]={id:c[0],name:c[1],actor:c[2],group:c[3],x:c[4],y:c[5]});
 
 const board=document.getElementById("board"),svg=document.getElementById("lines");
-let group="all",focus=null;
+const sel=document.getElementById("work");
+let work=-1,focus=null,pos={};
 
-TAGS.forEach(([t,x,y])=>{const e=document.createElement("span");e.className="tag";e.style.left=x+"px";e.style.top=y+"px";e.textContent=t;board.appendChild(e);});
+sel.innerHTML='<option value="-1">全体図（全'+Object.keys(C).length+'人）</option>'+
+  WORKS.map((w,i)=>'<option value="'+i+'">'+w[0]+'</option>').join("");
 
-C.forEach(c=>{
-  const b=document.createElement("button");
-  b.className="node";b.type="button";b.dataset.id=c[0];
-  b.style.left=c[4]+"px";b.style.top=c[5]+"px";
-  const ph=PEOPLE[c[2]];
-  b.innerHTML='<span class="face">'+(ph?'<img src="https://image.tmdb.org/t/p/w185'+ph+'" alt="" loading="lazy" onerror="this.parentNode.textContent=\''+c[1][0]+'\'">':c[1][0])+'</span>'+
-    '<span class="nm">'+c[1].split("／")[0]+'</span><span class="ac">'+c[2]+'</span>';
-  b.addEventListener("click",()=>{focus=focus===c[0]?null:c[0];draw();});
-  board.appendChild(b);
-});
-
-function visible(id){
-  if(group!=="all"&&P[id].group!==group)return false;
-  if(focus&&id!==focus&&!R.some(r=>(r[0]===focus&&r[1]===id)||(r[1]===focus&&r[0]===id)))return false;
-  return true;
+function current(){
+  if(work<0)return {ids:Object.keys(C),rels:REL};
+  return {ids:WORKS[work][1],rels:WORKS[work][2]};
+}
+const CELL_W=168,CELL_H=182,PAD=26,MAXW=2560;
+function layout(ids){
+  const groups=[];
+  ORDER.forEach(g=>{
+    const m=ids.filter(id=>C[id][2]===g);
+    if(m.length)groups.push({g,m});
+  });
+  let x=PAD,y=PAD,rowH=0,maxX=0;
+  pos={};const zones=[];
+  groups.forEach(gr=>{
+    const cols=Math.min(4,Math.ceil(Math.sqrt(gr.m.length)));
+    const rows=Math.ceil(gr.m.length/cols);
+    const w=cols*CELL_W+32,h=rows*CELL_H+44;
+    if(x+w>MAXW&&x>PAD){x=PAD;y+=rowH+40;rowH=0;}
+    gr.m.forEach((id,i)=>{
+      pos[id]={x:x+16+(i%cols)*CELL_W+CELL_W/2,y:y+34+Math.floor(i/cols)*CELL_H+CELL_H/2};
+    });
+    zones.push({x,y,w,h,label:GROUP[gr.g]});
+    x+=w+40;rowH=Math.max(rowH,h);maxX=Math.max(maxX,x);
+  });
+  return {zones,w:Math.max(maxX+PAD,900),h:y+rowH+PAD};
+}
+function render(){
+  const {ids,rels}=current();
+  const L=layout(ids);
+  board.style.width=L.w+"px";board.style.height=L.h+"px";
+  svg.setAttribute("viewBox","0 0 "+L.w+" "+L.h);
+  board.querySelectorAll(".node,.zone").forEach(n=>n.remove());
+  L.zones.forEach(z=>{
+    const d=document.createElement("div");d.className="zone";
+    d.style.cssText="left:"+z.x+"px;top:"+z.y+"px;width:"+z.w+"px;height:"+z.h+"px";
+    d.innerHTML="<span>"+z.label+"</span>";board.appendChild(d);
+  });
+  ids.forEach(id=>{
+    const [name,actor]=C[id],p=pos[id];
+    const b=document.createElement("button");
+    b.className="node";b.type="button";b.dataset.id=id;
+    b.style.left=p.x+"px";b.style.top=p.y+"px";
+    const ph=PEOPLE[actor];
+    b.innerHTML='<span class="face">'+(ph?'<img src="https://image.tmdb.org/t/p/w185'+ph+'" alt="" loading="lazy" onerror="this.parentNode.textContent=\''+name[0]+'\'">':name[0])+'</span>'+
+      '<span class="nm">'+name.split("／")[0]+'</span><span class="ac">'+actor+'</span>';
+    b.addEventListener("click",()=>{focus=focus===id?null:id;draw();});
+    board.appendChild(b);
+  });
+  document.getElementById("count").textContent=ids.length+"人 ／ "+rels.length+"の関係";
+  draw();
 }
 function draw(){
+  const {ids,rels}=current();
+  const linked=new Set();
+  if(focus)rels.forEach(r=>{if(r[0]===focus)linked.add(r[1]);if(r[1]===focus)linked.add(r[0]);});
   document.querySelectorAll(".node").forEach(n=>{
     const id=n.dataset.id;
-    n.classList.toggle("dim",!visible(id));
+    n.classList.toggle("dim",!!focus&&id!==focus&&!linked.has(id));
     n.classList.toggle("on",focus===id);
   });
   let s="";
-  R.forEach(([a,b,t,label],i)=>{
-    if(!visible(a)||!visible(b))return;
+  rels.forEach(([a,b,t,label],i)=>{
+    if(!pos[a]||!pos[b])return;
     if(focus&&a!==focus&&b!==focus)return;
-    const A=P[a],B=P[b];
-    const mx=(A.x+B.x)/2,my=(A.y+B.y)/2;
-    const off=R.filter((r,j)=>j<i&&((r[0]===a&&r[1]===b)||(r[0]===b&&r[1]===a))).length*26;
+    const A=pos[a],B=pos[b];
+    const off=rels.filter((r,j)=>j<i&&((r[0]===a&&r[1]===b)||(r[0]===b&&r[1]===a))).length*24;
     const dash=t==="enemy"?'stroke-dasharray="9 7"':(t==="mentor"?'stroke-dasharray="2 6"':"");
-    s+='<line x1="'+A.x+'" y1="'+A.y+'" x2="'+B.x+'" y2="'+B.y+'" stroke="'+COLOR[t]+'" stroke-width="'+(focus?3.5:2.5)+'" stroke-linecap="round" opacity="'+(focus?1:.85)+'" '+dash+'></line>';
-    s+='<text class="edgelabel" x="'+mx+'" y="'+(my-6-off)+'" text-anchor="middle">'+label+'</text>';
+    s+='<line x1="'+A.x+'" y1="'+A.y+'" x2="'+B.x+'" y2="'+B.y+'" stroke="'+COLOR[t]+'" stroke-width="'+(focus?3.5:2.2)+'" stroke-linecap="round" opacity="'+(focus?1:.7)+'" '+dash+'></line>';
+    if(focus)s+='<text class="edgelabel" x="'+((A.x+B.x)/2)+'" y="'+((A.y+B.y)/2-6-off)+'" text-anchor="middle">'+label+'</text>';
   });
   svg.innerHTML=s;
   panel();
@@ -224,17 +416,16 @@ function draw(){
 function panel(){
   const p=document.getElementById("panel");
   if(!focus){p.hidden=true;return;}
-  const me=P[focus];
-  const rel=R.filter(r=>r[0]===focus||r[1]===focus)
-    .map(r=>{const o=P[r[0]===focus?r[1]:r[0]];return "<li><b>"+o.name.split("／")[0]+"</b> ／ "+TYPE[r[2]]+"：" + r[3] + "</li>";}).join("");
+  const {rels}=current();
+  const [name,actor,g]=C[focus];
+  const list=rels.filter(r=>r[0]===focus||r[1]===focus)
+    .map(r=>{const o=C[r[0]===focus?r[1]:r[0]][0];return "<li><b>"+o.split("／")[0]+"</b> ／ "+TYPE[r[2]]+"：" + r[3] + "</li>";}).join("");
   p.hidden=false;
-  p.innerHTML="<h2>"+me.name+"</h2><p class=\"sub\">演: "+me.actor+" ／ "+GROUP[me.group]+"</p><ul>"+rel+"</ul>";
+  p.innerHTML="<h2>"+name+"</h2><p class=\"sub\">演: "+actor+" ／ "+GROUP[g]+(work<0?"":" ／ "+WORKS[work][0])+"</p><ul>"+(list||"<li>この作品では関係を登録していません</li>")+"</ul>";
 }
-document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{
-  group=b.dataset.g;focus=null;
-  document.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
-  draw();}));
-draw();
+sel.addEventListener("change",()=>{work=Number(sel.value);focus=null;render();document.querySelector(".scroller").scrollTo(0,0);});
+document.getElementById("reset").addEventListener("click",()=>{focus=null;draw();});
+render();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
