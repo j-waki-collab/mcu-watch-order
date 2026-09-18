@@ -89,7 +89,8 @@ footer{color:var(--muted);font-size:12px;margin-top:28px;max-width:70ch}
 
   <footer>
     <a class="tmdb" href="https://www.themoviedb.org" target="_blank" rel="noopener"><img src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg" alt="TMDB" width="92" height="12" onerror="this.parentNode.textContent='TMDB'"></a>
-    顔写真は俳優の写真をTMDBから取得しています。This product uses the TMDB API but is not endorsed or certified by TMDB. 関係の分類は、主要な作品での描かれ方をもとにした要約です。
+    ポスター画像はTMDBから取得しています。This product uses the TMDB API but is not endorsed or certified by TMDB. 顔写真はWikimedia Commonsの自由に使える写真です。関係の分類は、主要な作品での描かれ方をもとにした要約です。
+    <details id="credits"><summary style="cursor:pointer;margin-top:8px">写真のクレジットを見る</summary><div id="creditlist" style="margin-top:8px;font-size:11px;line-height:1.7"></div></details>
   </footer>
 </div>
 
@@ -383,7 +384,8 @@ function render(){
     b.className="node";b.type="button";b.dataset.id=id;
     b.style.left=p.x+"px";b.style.top=p.y+"px";
     const ph=PEOPLE[actor];
-    b.innerHTML='<span class="face">'+(ph?'<img src="https://image.tmdb.org/t/p/w185'+ph+'" alt="" loading="lazy" onerror="this.parentNode.textContent=\''+name[0]+'\'">':name[0])+'</span>'+
+    const src=ph?(typeof ph==="string"?"https://image.tmdb.org/t/p/w185"+ph:ph.u):"";
+    b.innerHTML='<span class="face">'+(src?'<img src="'+src+'" alt="" loading="lazy" onerror="this.parentNode.textContent=\''+name[0]+'\'">':name[0])+'</span>'+
       '<span class="nm">'+name.split("／")[0]+'</span><span class="ac">'+actor+'</span>';
     b.addEventListener("click",()=>{focus=focus===id?null:id;draw();});
     board.appendChild(b);
@@ -425,6 +427,10 @@ function panel(){
 }
 sel.addEventListener("change",()=>{work=Number(sel.value);focus=null;render();document.querySelector(".scroller").scrollTo(0,0);});
 document.getElementById("reset").addEventListener("click",()=>{focus=null;draw();});
+(function credits(){
+  const rows=Object.entries(PEOPLE).filter(([,v])=>v&&v.u).map(([a,v])=>a+"："+(v.by||"撮影者不明")+" ／ "+v.lic);
+  document.getElementById("creditlist").innerHTML=rows.length?rows.join("<br>"):"写真データがまだありません。";
+})();
 render();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
